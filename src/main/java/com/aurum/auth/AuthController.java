@@ -1,11 +1,14 @@
 package com.aurum.auth;
 
 import com.aurum.user.dto.SignupRequest;
+import com.aurum.user.repository.UserRepository;
 import com.aurum.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.aurum.user.dto.LoginRequest;
 import com.aurum.config.JwtUtil;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -14,16 +17,36 @@ public class AuthController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @PostMapping("/signup")
-    public String signup(@RequestBody SignupRequest request) {
+    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
         userService.signup(request);
-        return "User registered successfully";
+        return ResponseEntity.ok(Map.of(
+                "message", "User registered successfully"
+        ));
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-        System.out.println("CONTROLLER HIT 🔥");
-        return userService.login(request);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
+        var userOpt = userRepository.findByEmail(request.getEmail());
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
+
+        var user = userOpt.get();
+
+        // ✅ since you're storing plain password
+        if (!user.getPasswordHash().equals(request.getPassword())) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
+
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return ResponseEntity.ok(Map.of(
+                "token", token
+        ));
     }
 }
