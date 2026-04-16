@@ -26,12 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
-
-        // CRITICAL FIX
-        if (path.contains("/api/v1/auth")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        
 
         String header = request.getHeader("Authorization");
 
@@ -41,6 +36,11 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (request.getRequestURI().startsWith("/api/v1/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
