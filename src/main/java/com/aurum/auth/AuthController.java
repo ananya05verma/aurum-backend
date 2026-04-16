@@ -21,32 +21,21 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
+
         userService.signup(request);
-        return ResponseEntity.ok(Map.of(
-                "message", "User registered successfully"
-        ));
+
+        return ResponseEntity.ok().body(
+                Map.of("message", "User registered successfully")
+        );
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
-        var userOpt = userRepository.findByEmail(request.getEmail());
+        String token = userService.login(request);
 
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(401).body("Invalid credentials");
-        }
-
-        var user = userOpt.get();
-
-        // ✅ since you're storing plain password
-        if (!user.getPasswordHash().equals(request.getPassword())) {
-            return ResponseEntity.status(401).body("Invalid credentials");
-        }
-
-        String token = jwtUtil.generateToken(user.getEmail());
-
-        return ResponseEntity.ok(Map.of(
-                "token", token
-        ));
+        return ResponseEntity.ok().body(
+                Map.of("token", token)
+        );
     }
 }
