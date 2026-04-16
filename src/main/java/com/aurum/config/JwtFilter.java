@@ -24,42 +24,31 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
         String path = request.getRequestURI();
 
-        // ✅ SKIP AUTH ENDPOINTS
-        if (path.startsWith("/api/v1/auth")) {
+        // 🔥 CRITICAL FIX
+        if (path.contains("/api/v1/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String authHeader = request.getHeader("Authorization");
+        String header = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (header == null || !header.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            String token = authHeader.substring(7);
+        String token = header.substring(7);
 
-            try {
-                String email = jwtUtil.extractEmail(token);
+        try {
+            String email = jwtUtil.extractEmail(token);
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                email,
-                                null,
-                                Collections.emptyList()
-                        );
+            // (optional: set authentication later)
 
-                authentication.setDetails(
-                        new org.springframework.security.web.authentication.WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            } catch (Exception e) {
-                System.out.println("Invalid JWT");
-            }
+        } catch (Exception e) {
+            // ignore invalid token
         }
 
         filterChain.doFilter(request, response);
