@@ -38,7 +38,7 @@ public class SipService {
         List<Sip> sips = sipRepository.findByPortfolio(portfolio);
 
         double totalInvested = 0;
-        double totalUnits = 0;
+        double totalCurrentValue = 0;
 
         for (Sip sip : sips) {
 
@@ -50,14 +50,17 @@ public class SipService {
             double sipInvested = 0;
             double sipUnits = 0;
 
-            //  fetch full NAV history once
-            List<Map<String, String>> navHistory = marketDataService.getNavHistory(sip.getSchemeCode());
+            List<Map<String, String>> navHistory =
+                    marketDataService.getNavHistory(sip.getSchemeCode());
 
             for (int i = 0; i < months; i++) {
 
                 LocalDate sipDate = sip.getStartDate().plusMonths(i);
 
                 double nav = findClosestNav(navHistory, sipDate);
+
+                // ✅ safety check
+                if (nav == 0) continue;
 
                 double units = sip.getMonthlyAmount() / nav;
 
@@ -66,31 +69,32 @@ public class SipService {
             }
 
             totalInvested += sipInvested;
-            totalUnits += sipUnits;
-        }
 
-        // current value
-        double currentNAV = 0;
-
-        if (!sips.isEmpty()) {
-            currentNAV = marketDataService.getPrice(
+            // ✅ fetch NAV for THIS SIP
+            double currentNAV = marketDataService.getPrice(
                     "MUTUAL_FUND",
                     null,
-                    sips.get(0).getSchemeCode()
+                    sip.getSchemeCode()
             );
-        }
 
-        double currentValue = totalUnits * currentNAV;
+            double sipCurrentValue = sipUnits * currentNAV;
+
+            totalCurrentValue += sipCurrentValue;
+        }
 
         return SipSummary.builder()
                 .totalInvested(round(totalInvested))
-                .currentValue(round(currentValue))
-                .profitLoss(round(currentValue - totalInvested))
+                .currentValue(round(totalCurrentValue))
+                .profitLoss(round(totalCurrentValue - totalInvested))
                 .months(sips.isEmpty() ? 0 :
-                        (int) ChronoUnit.MONTHS.between(
-                                sips.get(0).getStartDate(),
+                        sips.stream()
+                        .mapToInt(s -> (int) ChronoUnit.MONTHS.between(
+                                s.getStartDate(),
                                 LocalDate.now()
-                        ))
+                        ) + 1)
+                        .max()
+                        .orElse(0)
+                )
                 .build();
     }
 
