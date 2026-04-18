@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
+
 import com.aurum.sip.Sip;
 
 @Service
@@ -133,44 +135,93 @@ public class TransactionService {
         List<Sip> sips = sipRepository.findByPortfolio(portfolio);
 
         List<HoldingDTO> holdings = new ArrayList<>();
-        double totalValue = 0;
+
+        double totalPortfolioValue = 0;
+
+        // First pass → calculate each SIP value
+        List<Double> sipValues = new ArrayList<>();
 
         for (Sip sip : sips) {
 
             long months = ChronoUnit.MONTHS.between(
                     sip.getStartDate(),
                     LocalDate.now()
-            );
+            ) + 1;
 
-            double invested = months * sip.getMonthlyAmount();
+            double invested = 0;
+            double units = 0;
 
-            double nav = marketDataService.getPrice(
+            List<Map<String, String>> navHistory =
+                    marketDataService.getNavHistory(sip.getSchemeCode());
+
+            for (int i = 0; i < months; i++) {
+
+                LocalDate sipDate = sip.getStartDate().plusMonths(i);
+
+                double nav = findClosestNav(navHistory, sipDate);
+
+                if (nav == 0) continue;
+
+                units += sip.getMonthlyAmount() / nav;
+                invested += sip.getMonthlyAmount();
+            }
+
+            double currentNAV = marketDataService.getPrice(
                     "MUTUAL_FUND",
                     null,
                     sip.getSchemeCode()
             );
 
-            double units = invested / nav;
-            double currentValue = units * nav;
+            double currentValue = units * currentNAV;
 
-            totalValue += currentValue;
+            sipValues.add(currentValue);
+            totalPortfolioValue += currentValue;
 
-            holdings.add(HoldingDTO.builder()
-                    .fundName(sip.getFundName())
-                    .invested(invested)
-                    .currentValue(currentValue)
-                    .units(units)
-                    .profitLoss(currentValue - invested)
-                    .weight(0)
-                    .build());
+            holdings.add(
+                    HoldingDTO.builder()
+                            .fundName(sip.getFundName())
+                            .invested(round(invested))
+                            .currentValue(round(currentValue))
+                            .units(round(units))
+                            .profitLoss(round(currentValue - invested))
+                            .weight(0) // temp
+                            .build()
+            );
         }
 
-        // calculate weight
-        for (HoldingDTO h : holdings) {
-            double weight = (h.getCurrentValue() / totalValue) * 100;
-            h.setWeight(weight);
+        // Second pass → calculate weights
+        for (int i = 0; i < holdings.size(); i++) {
+
+            double weight = totalPortfolioValue == 0
+                    ? 0
+                    : (sipValues.get(i) / totalPortfolioValue) * 100;
+
+            holdings.get(i).setWeight(round(weight));
         }
 
         return holdings;
+    }
+
+    private double round(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
+
+    private double findClosestNav(List<Map<String, String>> navHistory, LocalDate targetDate) {
+
+        for (Map<String, String> entry : navHistory) {
+
+            String dateStr = entry.get("date"); // format: dd-MM-yyyy
+
+            LocalDate navDate = LocalDate.parse(
+                    dateStr,
+                    java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy")
+            );
+
+            if (!navDate.isAfter(targetDate)) {
+                return Double.parseDouble(entry.get("nav"));
+            }
+        }
+
+        return 0.0;
     }
 }
