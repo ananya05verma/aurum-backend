@@ -45,7 +45,7 @@ public class SipService {
             long months = ChronoUnit.MONTHS.between(
                     sip.getStartDate(),
                     LocalDate.now()
-            );
+            ) + 1;
 
             double sipInvested = 0;
             double sipUnits = 0;
