@@ -64,4 +64,10 @@ public class MarketDataService {
 
         return (List<Map<String, String>>) response.get("data");
     }
+
+
+    public List<Map<String, Object>> getAllSchemes() {
+        String url = "https://api.mfapi.in/mf";
+        return restTemplate.getForObject(url, List.class);
+    }
 }
