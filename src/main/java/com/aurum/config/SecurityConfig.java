@@ -26,6 +26,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        .requestMatchers("/", "/health").permitAll()
+
                         // ✅ allow auth APIs
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
