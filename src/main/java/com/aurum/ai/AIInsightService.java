@@ -23,7 +23,7 @@ public class AIInsightService {
                 ? ((current - invested) / invested) * 100
                 : 0;
 
-        // 🔹 Duration Insight
+        //  Duration Insight
         if (months < 6) {
             insights.append("• Your investment duration is very short. SIP works best over long-term horizons.\n");
         } else if (months < 24) {
@@ -32,7 +32,7 @@ public class AIInsightService {
             insights.append("• Your long-term consistency is strong. This is ideal for wealth creation.\n");
         }
 
-        // 🔹 Performance Insight
+        //  Performance Insight
         if (returnPercent < -5) {
             insights.append("• Your portfolio is in a temporary drawdown. Avoid emotional decisions.\n");
         } else if (returnPercent <= 5) {
@@ -43,7 +43,7 @@ public class AIInsightService {
             insights.append("• Your portfolio is performing strongly. Consider reviewing allocation.\n");
         }
 
-        // 🔹 Investment Strength
+        //  Investment Strength
         if (invested < 10000) {
             insights.append("• Increasing SIP contributions can significantly boost compounding.\n");
         } else if (invested < 100000) {
@@ -52,14 +52,14 @@ public class AIInsightService {
             insights.append("• Strong investment base. Maintain discipline and diversification.\n");
         }
 
-        // 🔹 Behavior Insight
+        //  Behavior Insight
         if (profit < 0 && months < 12) {
             insights.append("• Short-term losses are normal. Avoid stopping SIPs during dips.\n");
         } else if (profit > 0 && months > 24) {
             insights.append("• You are benefiting from long-term investing. Stay consistent.\n");
         }
 
-        // 🔹 Final Tip
+        //  Final Tip
         insights.append("• Consistency and patience are key to long-term wealth creation.");
 
         return insights.toString();

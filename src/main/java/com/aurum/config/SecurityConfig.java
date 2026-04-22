@@ -28,13 +28,13 @@ public class SecurityConfig {
 
                         .requestMatchers("/", "/health").permitAll()
 
-                        // ✅ allow auth APIs
+                        //  allow auth APIs
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        // 🔥 CRITICAL: allow preflight
+                        //  CRITICAL: allow preflight
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 🔒 rest secured
+                        //  rest secured
                         .anyRequest().authenticated()
                 )
 

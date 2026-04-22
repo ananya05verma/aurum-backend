@@ -66,7 +66,7 @@ public class TransactionService {
 
         double totalValue = 0;
 
-        // 👉 IMPORTANT: fetch only this user's transactions
+        // IMPORTANT: fetch only this user's transactions
         for (Transaction t : portfolio.getTransactions()) {
 
             double currentPrice = marketDataService.getPrice(

@@ -59,7 +59,7 @@ public class SipService {
 
                 double nav = findClosestNav(navHistory, sipDate);
 
-                // ✅ safety check
+                //  safety check
                 if (nav == 0) continue;
 
                 double units = sip.getMonthlyAmount() / nav;
@@ -70,7 +70,7 @@ public class SipService {
 
             totalInvested += sipInvested;
 
-            // ✅ fetch NAV for THIS SIP
+            //  fetch NAV for THIS SIP
             double currentNAV = marketDataService.getPrice(
                     "MUTUAL_FUND",
                     null,

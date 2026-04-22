@@ -8,7 +8,7 @@ public class HealthController {
 
     @GetMapping("/")
     public String home() {
-        return "Aurum Backend is running 🚀";
+        return "Aurum Backend is running";
     }
 
     @GetMapping("/health")
