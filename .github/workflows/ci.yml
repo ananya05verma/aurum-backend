@@ -30,8 +30,11 @@ jobs:
       DB_URL: jdbc:postgresql://localhost:5432/aurum_test
       DB_USERNAME: aurum_test
       DB_PASSWORD: test_password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/aurum_test
+      SPRING_DATASOURCE_USERNAME: aurum_test
+      SPRING_DATASOURCE_PASSWORD: test_password
       JWT_SECRET: ci-test-secret-key-for-aurum-1234567890
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
