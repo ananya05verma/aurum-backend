@@ -9,7 +9,16 @@ import java.util.Map;
 @Service
 public class MarketDataService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public MarketDataService() {
+        this.restTemplate = new RestTemplate();
+    }
+
+    // For testing
+    MarketDataService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     // 🔹 MAIN METHOD (ONLY MF SUPPORTED)
     public double getPrice(String instrumentType, String symbol, String schemeCode) {
