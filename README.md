@@ -119,3 +119,69 @@ Windows PowerShell:
 
 ```powershell
 .\mvnw.cmd clean verify
+
+The JaCoCo HTML report is generated at:
+
+`target/site/jacoco/index.html`
+
+## Getting Started
+
+### Prerequisites
+
+- Java 17
+- Git
+- PostgreSQL or a compatible hosted PostgreSQL database
+
+### 1. Clone the Repository
+
+```bash
+git clone <YOUR_BACKEND_REPOSITORY_URL>
+cd aurum-backend
+```
+
+### 2. Configure Environment Variables
+
+Configure the following environment variables:
+
+```text
+DB_URL=your_database_url
+DB_USERNAME=your_database_username
+DB_PASSWORD=your_database_password
+JWT_SECRET=your_jwt_secret
+```
+
+Ensure your Spring Boot configuration reads these variables before starting the application. Never commit database credentials, JWT secrets, or `.env` files.
+
+### 3. Run the Backend
+
+Windows PowerShell:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+macOS/Linux:
+
+```bash
+./mvnw spring-boot:run
+```
+
+The backend starts on the port configured in your Spring Boot settings.
+
+## Deployment
+
+- **Live Application:** [Aurum on Vercel](https://aurum-frontend-kappa.vercel.app/)
+- **Backend:** Deployed on Render
+- **Database:** Hosted on Neon PostgreSQL
+
+## Project Highlights
+
+- Implemented JWT-based authentication and user-specific portfolio management.
+- Integrated external mutual fund NAV data into SIP valuation logic.
+- Built portfolio summaries and rule-based investment insights.
+- Added automated tests and measured coverage using JaCoCo.
+- Configured GitHub Actions for continuous integration.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
