@@ -9,7 +9,8 @@ import static org.mockito.Mockito.*;
 
 class AIInsightServiceTest {
 
-    private final AIInsightService service = new AIInsightService();
+    private final AIInsightService service =
+            new AIInsightService(mock(RagService.class));
 
     private SipSummary createSummary(
             double invested,
